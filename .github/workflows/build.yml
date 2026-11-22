@@ -1,0 +1,99 @@
+name: Build 7Bind
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pytest
+      - run: python -m pytest -q tests
+        env:
+          PYTHONPATH: src:tests
+
+  windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+      - name: Build exe
+        run: >
+          pyinstaller --noconfirm --clean --onefile --windowed
+          --name 7Bind
+          --paths src
+          --add-data "src/sevenbind/ui;sevenbind/ui"
+          --collect-submodules sevenbind
+          --hidden-import keyring.backends.Windows
+          --hidden-import pystray._win32
+          run_client.py
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          $v = & .\dist\7Bind.exe --version | Out-String
+          Write-Host "version: $v"
+      - name: Update install test
+        shell: pwsh
+        run: |
+          $d = Join-Path $env:RUNNER_TEMP 'swaptest'
+          New-Item -ItemType Directory -Force $d, "$d\lad\7Bind\update" | Out-Null
+          Copy-Item dist/7Bind.exe "$d\7Bind.exe"
+          Copy-Item dist/7Bind.exe "$d\lad\7Bind\update\7Bind-9.9.9.exe"
+          $dummy = Start-Process ping -ArgumentList '-n','3','127.0.0.1' -PassThru -WindowStyle Hidden
+          $env:LOCALAPPDATA = "$d\lad"
+          $p = Start-Process "$d\lad\7Bind\update\7Bind-9.9.9.exe" -ArgumentList '--install-to',"$d\7Bind.exe",'--wait',"$($dummy.Id)",'--from-version','0.0.1' -PassThru
+          $p | Wait-Process -Timeout 90
+          $log = "$d\lad\7Bind\update\update.log"
+          Get-Content $log
+          Get-Process 7Bind -ErrorAction SilentlyContinue | Stop-Process -Force
+          if (-not (Select-String -Path $log -Pattern ' updated$' -Quiet)) { Write-Error 'install did not complete'; exit 1 }
+          if (-not (Test-Path "$d\7Bind.old.exe")) { Write-Error 'no backup kept'; exit 1 }
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $h = (Get-FileHash dist/7Bind.exe -Algorithm SHA256).Hash.ToLower()
+          "$h  7Bind.exe" | Out-File -Encoding ascii -NoNewline dist/7Bind.exe.sha256
+          Write-Host "sha256: $h"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 7Bind
+          path: dist/7Bind.exe
+      - name: Version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = (Select-String -Path src/sevenbind/__init__.py -Pattern '__version__ = "(.+)"').Matches[0].Groups[1].Value
+          "tag=v$v" >> $env:GITHUB_OUTPUT
+      # Every push to main publishes (or refreshes) the release for the version in __init__.py.
+      - name: Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: 7Bind ${{ steps.ver.outputs.tag }}
+          body: |
+            Windows SmartScreen asks once because the exe is not signed yet: More info → Run anyway.
+            Download: https://github.com/TheBanjolorian/7Bind/releases/latest/download/7Bind.exe
+          files: |
+            dist/7Bind.exe
+            dist/7Bind.exe.sha256
+          overwrite_files: true
+          make_latest: true

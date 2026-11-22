@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>7Bind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --gold:#f0b443; --gold2:#ffd27a; --bg:#0a0a0a; --panel:#111; --panel2:#0d0d0d; --line:#1f1f1f; --line2:#2a2a2a; --text:#e8e8e8; --mute:#c8c8c8; --dim:#9a9a9a; --ok:#4ade80; --red:#f87171; --redbg:#1f1212; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.45 Inter, "Segoe UI", sans-serif; overflow: hidden; }
+  button, select, input { font: inherit; }
+  .app { display: grid; grid-template-rows: 44px 1fr; height: 100%; }
+  header { display: flex; align-items: center; gap: 10px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--panel2); }
+  .brand { font: 800 18px "Barlow Condensed", sans-serif; letter-spacing: .06em; }
+  .dim { color: var(--dim); } .mute { color: var(--mute); } .gold { color: var(--gold); } .red { color: var(--red); } .ok { color: var(--ok); }
+  .grow { flex: 1; min-width: 0; }
+  .body { display: flex; min-height: 0; }
+  nav { width: 196px; border-right: 1px solid var(--line); padding: 16px 10px; display: flex; flex-direction: column; gap: 4px; }
+  nav button { text-align: left; background: none; border: 0; color: #b5b5b5; padding: 10px 12px; border-radius: 6px; cursor: pointer; }
+  nav button:hover { color: var(--text); background: #151515; }
+  nav button.on { background: var(--gold); color: var(--bg); font-weight: 600; }
+  nav .foot { margin-top: auto; font-size: 12px; color: var(--dim); padding: 0 12px; line-height: 1.5; }
+  main { flex: 1; min-width: 0; overflow: auto; padding: 22px 28px 28px; }
+  h1 { margin: 0; font: 800 30px "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: .02em; }
+  h2 { margin: 0; font: 600 15px "Barlow Condensed", sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+  .sub { margin: 4px 0 0; font-size: 13px; color: var(--dim); }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+  .pad { padding: 14px 16px; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .btn { height: 40px; padding: 0 16px; border-radius: 6px; border: 1px solid #333; background: transparent; color: var(--text); cursor: pointer; white-space: nowrap; }
+  .btn:hover { border-color: var(--gold); }
+  .btn.gold { background: var(--gold); color: var(--bg); border: 0; font-weight: 600; }
+  .btn.gold:hover { background: var(--gold2); }
+  .btn.danger { background: #dc2626; color: #fff; border: 0; font-weight: 600; }
+  .btn.small { height: 32px; padding: 0 12px; font-size: 13px; }
+  .btn:disabled, .btn.gold:disabled, .btn.danger:disabled { background: #2a2a2a; color: #8a8a8a; border: 0; cursor: default; }
+  .link { background: none; border: 0; color: var(--gold); cursor: pointer; padding: 0; font-size: 13px; }
+  .link:hover { color: var(--gold2); }
+  .info { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; font-size: 13px; }
+  .notice { border-radius: 8px; padding: 12px 14px; font-size: 13px; line-height: 1.5; }
+  .notice.amber { background: #1a1508; border: 1px solid #5c4519; }
+  .notice.red { background: var(--redbg); border: 1px solid #7f1d1d; }
+  .notice.green { background: #0e1510; border: 1px solid #22532f; }
+  .dot { width: 8px; height: 8px; border-radius: 4px; background: #555; flex: none; }
+  .dot.g { background: var(--ok); } .dot.y { background: var(--gold); } .dot.r { background: var(--red); }
+  .chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .ch { padding: 14px; display: flex; flex-direction: column; gap: 6px; min-height: 120px; }
+  .ch.tpl { border-color: var(--gold); }
+  .ch.none { background: var(--panel2); border-style: dashed; border-color: #2a2a2a; }
+  .ch .t { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+  .ch .n { font: 800 20px "Barlow Condensed", sans-serif; }
+  .pill { font-size: 11px; border: 1px solid #333; color: var(--dim); border-radius: 10px; padding: 2px 8px; white-space: nowrap; display: inline-flex; gap: 4px; align-items: center; }
+  .pill.gold { color: var(--gold); border-color: #5c4519; }
+  .pill.ok { color: var(--ok); border-color: #22532f; }
+  .pill.red { color: var(--red); border-color: #7f1d1d; }
+  .small { font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 500; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; padding: 8px 10px; background: var(--panel2); }
+  td { padding: 9px 10px; border-top: 1px solid #1a1a1a; vertical-align: middle; }
+  td.r, th.r { text-align: right; }
+  tr.sel td { background: #17140c; }
+  tr.pick { cursor: pointer; } tr.pick:hover td { background: #151515; }
+  .mono { font-family: "JetBrains Mono", Consolas, monospace; font-size: 12px; }
+  .opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; font-size: 13px; }
+  label.chk { display: flex; align-items: center; gap: 12px; padding: 8px 0; font-size: 14px; cursor: pointer; }
+  input[type=checkbox], input[type=radio] { width: 18px; height: 18px; accent-color: var(--gold); flex: none; }
+  select, input[type=text] { height: 40px; background: var(--bg); color: var(--text); border: 1px solid #333; border-radius: 6px; padding: 0 12px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .lab { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+  .switch { flex: none; width: 44px; height: 24px; border-radius: 12px; border: 0; padding: 3px; cursor: pointer; display: flex; align-items: center; background: #2a2a2a; justify-content: flex-start; }
+  .switch.on { background: var(--gold); justify-content: flex-end; }
+  .switch span { width: 18px; height: 18px; border-radius: 50%; background: var(--text); display: block; }
+  .switch:disabled { cursor: default; opacity: .5; }
+  .srow { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-top: 1px solid #1a1a1a; }
+  .srow:first-of-type { border-top: 0; }
+  .srow .t { font-size: 14px; } .srow .s { font-size: 12px; color: var(--dim); }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+  .steps { display: flex; gap: 8px; font-size: 12px; }
+  .steps span { padding: 6px 12px; border-radius: 14px; background: #1a1a1a; color: var(--dim); }
+  .steps span.on { background: var(--gold); color: var(--bg); font-weight: 600; }
+  .hidden { display: none !important; }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.72); display: flex; align-items: center; justify-content: center; z-index: 10; }
+  .modal { width: 600px; max-width: calc(100% - 40px); background: var(--panel); border-radius: 10px; border: 1px solid #333; }
+  .modal.danger { border-color: #7f1d1d; }
+  .modal .mh { padding: 20px 24px 10px; }
+  .modal .mb { padding: 6px 24px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .modal .mf { padding: 14px 24px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 10px; }
+  .kv { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+  .code { font: 600 28px "JetBrains Mono", monospace; letter-spacing: .18em; color: var(--gold); }
+  .lock { display: inline-flex; align-items: center; gap: 6px; color: var(--gold); font-size: 12px; }
+  svg.i { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; flex: none; }
+  .toast { position: fixed; right: 20px; bottom: 20px; background: #161616; border: 1px solid #333; border-radius: 8px; padding: 12px 16px; font-size: 13px; max-width: 420px; z-index: 20; }
+  .toast.err { border-color: #7f1d1d; }
+  .empty { padding: 26px; text-align: center; color: var(--dim); font-size: 13px; }
+</style>
+</head>
+<body>
+<svg style="display:none"><symbol id="lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+<symbol id="pin" viewBox="0 0 24 24"><path d="M12 17v5M5 17h14l-2-5V4H7v8z"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
+<symbol id="warn" viewBox="0 0 24 24"><path d="M12 3 2 21h20zM12 10v5M12 18v.5"/></symbol></svg>
+<div class="app">
+  <header>
+    <svg width="18" height="18" viewBox="0 0 512 512" aria-hidden="true"><polygon fill="#F0B443" points="65,91 446,91 256,421 214,349 325,157 103,157"/></svg>
+    <span class="brand">7BIND</span><span class="dim small" id="ver"></span>
+    <span class="grow"></span>
+    <span class="row small" id="who"><span class="dot" id="whoDot"></span><span id="whoText">Not linked</span></span>
+  </header>
+  <div class="body">
+    <nav aria-label="Sections">
+      <button data-view="backups" class="on" onclick="go('backups')">Backups</button>
+      <button data-view="copy" onclick="go('copy')">Copy between channels</button>
+      <button data-view="restore" onclick="go('restore')">Restore</button>
+      <button data-view="settings" onclick="go('settings')">Settings</button>
+      <div class="foot">Game folder<br><span class="mono" id="gameRoot" style="color:var(--mute);font-size:11px;word-break:break-all">—</span></div>
+    </nav>
+    <main>
+      <div class="notice amber hidden" id="updCard" style="margin-bottom:14px"><div class="row"><div class="grow"><b id="updTitle"></b> <span class="mute" id="updText"></span></div><button class="btn small gold" id="updBtn" onclick="updAction()"></button></div></div>
+
+      <!-- ===================== BACKUPS ===================== -->
+      <section id="v-backups" class="stack">
+        <div class="head" style="margin:0">
+          <div><h1>Backups</h1><p class="sub">Key bindings, curves and game settings. Kept on this PC and on 7hills.space.</p></div>
+          <div class="row">
+            <button class="btn" onclick="sheet()">Bindings sheet</button>
+            <button class="btn" onclick="go('copy')">Copy between channels…</button>
+            <button class="btn gold" onclick="openNameBox()">Back up now</button>
+          </div>
+        </div>
+        <div class="info" id="gameInfo"></div>
+        <div class="chips" id="chips"></div>
+        <div class="row" style="gap:12px;align-items:stretch">
+          <div class="card opt grow"><button class="switch" id="swAuto" onclick="toggle('auto_backup')" aria-label="Back up every time the game closes"><span></span></button><div><b>Back up every time the game closes</b><div class="dim small">Identical files are never stored twice. A new game version always gets a snapshot.</div></div></div>
+          <div class="card opt grow"><span class="lock"><svg class="i"><use href="#lock"/></svg></span><div><b>Keep every backup</b><div class="dim small">Nothing is deleted automatically · about 5 KB each</div></div></div>
+        </div>
+        <div class="notice amber hidden" id="cloudNote"></div>
+        <div class="card">
+          <div class="row" style="justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)">
+            <h2>Recent backups</h2>
+            <div class="row"><span class="dim small" id="cloudState"></span><button class="link" onclick="api('open_web','backups')">All backups on 7hills.space ↗</button></div>
+          </div>
+          <table><thead><tr><th>Backup</th><th>Channel</th><th>Version</th><th>Saved</th><th>What changed</th><th class="r"></th></tr></thead><tbody id="recent"></tbody></table>
+        </div>
+        <div class="card pad"><h2 style="margin-bottom:8px">Recent</h2><div id="events" class="small mute"></div></div>
+      </section>
+
+      <!-- ===================== COPY ===================== -->
+      <section id="v-copy" class="stack hidden">
+        <div class="head" style="margin:0"><div><h1>Copy settings</h1><p class="sub">Make another channel use the same setup.</p></div></div>
+        <div class="card pad stack">
+          <div class="row" style="align-items:flex-end;gap:14px">
+            <div class="field grow"><label class="lab" for="cpFrom">From</label><select id="cpFrom" onchange="planCopy()"></select></div>
+            <svg width="24" height="40" viewBox="0 0 24 24" fill="none" stroke="#f0b443" stroke-width="2" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+            <div class="field grow"><label class="lab" for="cpTo">To</label><select id="cpTo" onchange="planCopy()"></select></div>
+          </div>
+          <fieldset style="border:1px solid var(--line);border-radius:8px;padding:4px 16px 8px;margin:0" id="cpGroups"><legend class="lab" style="padding:0 6px">What to copy</legend></fieldset>
+          <div id="cpChecks" class="stack" style="gap:8px"></div>
+          <div class="row lock"><svg class="i"><use href="#lock"/></svg><span>LIVE is the template. Copy never writes to it.</span></div>
+          <div class="notice" style="background:var(--bg);border:1px solid var(--line)">The target's current files are backed up first (also to 7hills.space) and kept on this PC for 30 days, so you can undo from Restore.</div>
+          <div class="row" style="justify-content:flex-end"><button class="btn gold" id="cpGo" onclick="runCopy()" disabled>Copy</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== RESTORE ===================== -->
+      <section id="v-restore" class="stack hidden">
+        <div class="head" style="margin:0">
+          <div><h1>Restore</h1><p class="sub">Put a backup back into a channel, for example after reinstalling Windows.</p></div>
+          <div class="steps"><span id="st1" class="on">1 · Pick backup</span><span id="st2">2 · Match devices</span><span id="st3">3 · Restore</span></div>
+        </div>
+        <div id="rsPick" class="stack">
+          <div class="row"><span class="lab">Show</span><select id="rsFilter" onchange="renderPick()" style="height:34px"><option value="">All channels</option></select>
+            <span class="grow"></span><button class="btn small" id="rsCloudBtn" onclick="loadCloud()">Show backups from 7hills.space</button></div>
+          <div class="card"><table><thead><tr><th>Backup</th><th>Channel</th><th>Version</th><th>Saved</th><th>What changed</th><th>Where</th></tr></thead><tbody id="rsList"></tbody></table></div>
+        </div>
+        <div id="rsMatch" class="stack hidden">
+          <div class="row" style="gap:14px;align-items:stretch">
+            <div class="card pad grow"><div class="lab">Backup</div><div id="rsSrc" style="font-size:15px;margin-top:4px"></div><div class="dim small" id="rsSrcSub"></div></div>
+            <div class="card pad" style="width:260px"><label class="lab" for="rsTo">Restore into</label><select id="rsTo" onchange="planRestore()" style="width:100%;margin-top:6px"></select>
+              <div class="lock" style="margin-top:6px;color:var(--dim)"><svg class="i"><use href="#lock"/></svg>LIVE only here, after typing RESTORE</div></div>
+          </div>
+          <fieldset style="border:1px solid var(--line);border-radius:8px;padding:4px 16px 8px;margin:0" id="rsGroups"><legend class="lab" style="padding:0 6px">What to restore</legend></fieldset>
+          <div id="rsDevNote"></div>
+          <div class="card"><table><thead><tr><th>Device</th><th>In backup</th><th>On this PC</th><th>Result</th></tr></thead><tbody id="rsDevices"></tbody></table></div>
+          <div class="row"><span class="dim small grow" id="rsFoot"></span><button class="btn" onclick="rsBack()">Back</button><button class="btn gold" id="rsGo" onclick="openConfirm()">Restore</button></div>
+        </div>
+      </section>
+
+      <!-- ===================== SETTINGS ===================== -->
+      <section id="v-settings" class="stack hidden">
+        <h1>Settings</h1>
+        <div class="grid2">
+          <div class="stack">
+            <div class="card pad"><h2>Account</h2>
+              <div id="acct"></div>
+            </div>
+            <div class="card pad"><h2>Game</h2>
+              <div id="chanRows"></div>
+              <div class="srow"><div class="grow"><div class="t">LIVE protection</div><div class="s">Only Restore with RESTORE typed can change LIVE</div></div><span class="lock"><svg class="i"><use href="#lock"/></svg>Locked</span></div>
+              <div class="red small" id="pathErr"></div>
+              <div class="srow"><div class="grow"><div class="t">Look for installs again</div><div class="s">Finds LIVE, PTU and the other channels by itself</div></div><button class="btn small" onclick="call('rescan')">Scan</button></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="card pad"><h2>Backups</h2>
+              <div class="srow"><div class="grow"><div class="t">Back up when the game closes</div><div class="s">Only if something changed</div></div><button class="switch" id="swAuto2" onclick="toggle('auto_backup')" aria-label="Back up when the game closes"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Send backups to 7hills.space</div><div class="s">Needed to restore on another PC or after a reinstall</div></div><button class="switch" id="swCloud" onclick="toggle('cloud')" aria-label="Send backups to 7hills.space"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Snapshot on new game version</div><div class="s">Always on</div></div><button class="switch on" disabled aria-label="Always on"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Keep every backup</div><div class="s">Never deleted automatically</div></div><button class="switch on" disabled aria-label="Always on"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Backups folder</div><div class="s">%LOCALAPPDATA%\7Bind\backups</div></div><button class="btn small" onclick="api('open_folder','backups')">Open</button></div>
+            </div>
+            <div class="card pad"><h2>App</h2>
+              <div class="srow"><div class="grow"><div class="t">Start with Windows</div><div class="s" id="startHint">Starts hidden in the tray</div></div><button class="switch" id="swStart" onclick="toggle('start_with_windows')" aria-label="Start with Windows"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Close to tray</div><div class="s">Keeps backing up when the window is closed</div></div><button class="switch" id="swTray" onclick="toggle('tray')" aria-label="Close to tray"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Update automatically</div><div class="s" id="updInfo"></div></div><button class="switch" id="swUpd" onclick="setAutoUpdate()" aria-label="Update automatically"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Release notes</div><div class="s">github.com/TheBanjolorian/7Bind</div></div><button class="btn small" onclick="api('open_web','github')">Open ↗</button> <button class="btn small" id="checkBtn" onclick="checkNow()">Check now</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- name box -->
+<div class="overlay hidden" id="nameBox"><div class="modal" role="dialog" aria-labelledby="nbT">
+  <div class="mh"><h1 id="nbT" style="font-size:24px">Back up now</h1><p class="sub">All installed channels. Give it a name to keep it pinned, or leave it empty.</p></div>
+  <div class="mb"><label class="field"><span class="lab">Name (optional)</span><input type="text" id="nbName" maxlength="60" placeholder="e.g. Before 5.0"></label></div>
+  <div class="mf"><button class="btn" onclick="hide('nameBox')">Cancel</button><button class="btn gold" onclick="backupNow()">Back up</button></div>
+</div></div>
+
+<!-- restore confirm -->
+<div class="overlay hidden" id="confirmBox"><div class="modal danger" role="alertdialog" aria-labelledby="cfT" aria-describedby="cfD">
+  <div class="mh row" style="align-items:flex-start;gap:14px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" aria-hidden="true" style="flex:none"><path d="M12 3 2 21h20zM12 10v5M12 18v.5"/></svg>
+    <div><h1 id="cfT" style="font-size:26px"></h1><p class="sub mute" id="cfD"></p></div></div>
+  <div class="mb">
+    <div class="card pad" style="background:var(--bg)" id="cfSum"></div>
+    <div class="row lock" id="cfLive"><svg class="i"><use href="#lock"/></svg><span>This is the only way 7Bind ever writes to LIVE.</span></div>
+    <div class="row small mute"><svg class="i ok" style="color:var(--ok)"><use href="#check"/></svg><span id="cfSafe"></span></div>
+    <label class="field"><span style="font-size:13px">Type <b class="mono red">RESTORE</b> to confirm</span>
+      <input type="text" id="cfWord" autocomplete="off" spellcheck="false" placeholder="RESTORE" oninput="cfCheck()" style="height:46px;font:16px 'JetBrains Mono',monospace;letter-spacing:.1em"></label>
+    <div class="red small" id="cfErr"></div>
+  </div>
+  <div class="mf"><button class="btn" onclick="hide('confirmBox')">Cancel</button><button class="btn danger" id="cfGo" disabled onclick="runRestore()"></button></div>
+</div></div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id)
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+  const show = (id, on) => $(id).classList.toggle('hidden', !on)
+  const hide = id => show(id, false)
+  function api(name, ...args) { return window.pywebview ? window.pywebview.api[name](...args) : Promise.resolve(null) }
+  async function call(name, ...args) { const s = await api(name, ...args); if (s && !s.error) render(s); else if (s && s.error) toast(s.error, true); return s }
+  let S = null, view = 'backups', toastT = null
+  function toast(text, err) { const t = $('toast'); t.textContent = text; t.classList.toggle('err', !!err); show('toast', true); clearTimeout(toastT); toastT = setTimeout(() => hide('toast'), err ? 7000 : 4000) }
+  function when(iso) { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }
+  function label(b) { return b.name ? '<svg class="i gold" style="vertical-align:-2px;margin-right:6px"><use href="#pin"/></svg><b>' + esc(b.name) + '</b>' : ({ version_snapshot: 'Version snapshot', before_restore: 'Before restore', manual: 'Manual', auto: 'Automatic' }[b.kind] || 'Backup') }
+  function whatCell(b) { return b.kind === 'version_snapshot' || b.kind === 'before_restore' ? '<span class="pill gold">' + esc(b.what) + '</span>' : '<span class="mute">' + esc(b.what || '') + '</span>' }
+  function go(v) {
+    view = v
+    document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.view === v))
+    ;['backups', 'copy', 'restore', 'settings'].forEach(x => show('v-' + x, x === v))
+    if (v === 'copy') initCopy()
+    if (v === 'restore') initRestore()
+  }
+  function setSwitch(id, on) { const b = $(id); if (b) b.classList.toggle('on', !!on) }
+  async function toggle(key) { await call('set_pref', key, !(S && S.prefs[key])) }
+  async function setAutoUpdate() { await call('set_auto_update', !(S && S.update && S.update.auto)) }
+  async function checkNow() { $('checkBtn').disabled = true; try { await call('check_updates') } finally { $('checkBtn').disabled = false } }
+  function updAction() { const u = (S && S.update) || {}; call(u.state === 'error' ? 'check_updates' : 'update_now') }
+  function installed() { return (S ? S.channels : []).filter(c => c.installed) }
+  function groupBoxes(el, chosen) {
+    const g = (S && S.groups) || {}
+    el.querySelectorAll('label').forEach(l => l.remove())
+    Object.keys(g).forEach(k => {
+      const l = document.createElement('label'); l.className = 'chk'
+      l.innerHTML = '<input type="checkbox" value="' + k + '"' + (chosen.includes(k) ? ' checked' : '') + '><span>' + esc(g[k]) + '</span>'
+      el.appendChild(l)
+    })
+  }
+  const groupsOf = el => [...el.querySelectorAll('input:checked')].map(i => i.value)
+
+  // ---------------------------------------------------------------- render (every tick)
+  function render(s) {
+    S = s
+    const u = s.update || {}
+    $('ver').textContent = 'v' + s.version + ({ downloading: ' · downloading v' + u.latest, ready: ' · v' + u.latest + ' ready', installing: ' · updating…' }[u.state] || '')
+    const failed = u.state === 'error' && !!u.latest
+    show('updCard', u.state === 'ready' || u.state === 'installing' || failed)
+    $('updTitle').textContent = failed ? 'Update failed.' : u.state === 'installing' ? 'Updating…' : 'v' + u.latest + ' is ready.'
+    $('updText').textContent = failed ? (u.error || '') : 'Installs when Star Citizen is closed, or now.'
+    $('updBtn').textContent = failed ? 'Try again' : 'Restart now'
+
+    const name = s.member && s.member.handle
+    $('whoDot').className = 'dot ' + (s.linked ? 'g' : 'r')
+    $('whoText').innerHTML = s.linked ? 'Signed in as <b>' + esc(name || 'this PC') + '</b>' : 'Not linked'
+    const live = s.installs.find(i => i.channel === 'LIVE') || s.installs[0]
+    $('gameRoot').textContent = live ? live.folder.replace(/[\\/][^\\/]+$/, '') : 'Not found'
+
+    // game info bar
+    const run = s.running || []
+    $('gameInfo').innerHTML = !s.installs.length
+      ? '<span class="dot r"></span><span><b>Star Citizen not found.</b></span><span class="dim">Pick StarCitizen.exe under Settings → Game.</span>'
+      : run.length ? '<span class="dot g"></span><span>Star Citizen <b>' + esc(run.join(', ')) + '</b> is running.</span><span class="dim">The game writes your bindings when it closes. 7Bind backs them up right after.</span>'
+      : '<span class="dot"></span><span>Star Citizen is <b>not running</b>.</span><span class="dim">Backups happen when the game closes, and when 7Bind starts.</span>'
+
+    // channel cards
+    const cards = s.channels.filter(c => c.installed || ['LIVE', 'PTU', 'EPTU', 'HOTFIX'].includes(c.channel))
+    $('chips').style.gridTemplateColumns = 'repeat(' + Math.min(4, Math.max(cards.length, 1)) + ', minmax(0,1fr))'
+    $('chips').innerHTML = cards.slice(0, 8).map(c => {
+      if (!c.installed) return '<div class="card ch none"><div class="t"><span class="n dim">' + esc(c.channel) + '</span></div><div class="dim small">Not installed</div></div>'
+      const b = c.latest, sm = (b && b.summary) || {}
+      const badge = c.template ? '<span class="pill gold"><svg class="i"><use href="#lock"/></svg>Template</span>'
+        : c.running ? '<span class="pill ok">Running</span>'
+        : b ? (sm.bindings < 5 ? '<span class="pill gold">Mostly default</span>' : '<span class="pill ok">Backed up</span>') : '<span class="pill">No backup</span>'
+      const ver = c.game && c.game.version ? ' · ' + esc(c.game.version) : ''
+      return '<div class="card ch' + (c.template ? ' tpl' : '') + '"><div class="t"><span class="n">' + esc(c.channel) + '<span class="dim" style="font:500 13px Inter">' + ver + '</span></span>' + badge + '</div>' +
+        '<div class="dim small">' + (b ? 'Last backup ' + when(b.created_at) : 'Not backed up yet') + '</div>' +
+        (b && sm.has_bindings !== false ? '<div style="font-size:13px">' + (sm.bindings || 0) + ' bindings · ' + (sm.removed || 0) + ' unbound' + (sm.curves ? ' · ' + sm.curves + ' curves' : '') + '</div>' : '<div class="dim small">No bindings file yet</div>') +
+        (c.template ? '<div class="dim small">Read-only · changed only by Restore + RESTORE</div>'
+          : '<button class="link" style="text-align:left" onclick="copyTo(\'' + esc(c.channel) + '\')">Copy from LIVE →</button>') + '</div>'
+    }).join('')
+
+    setSwitch('swAuto', s.prefs.auto_backup); setSwitch('swAuto2', s.prefs.auto_backup)
+    setSwitch('swCloud', s.prefs.cloud); setSwitch('swStart', s.prefs.start_with_windows); setSwitch('swTray', s.prefs.tray); setSwitch('swUpd', u.auto)
+    $('swStart').disabled = !s.can_autostart
+    $('startHint').textContent = s.can_autostart ? 'Starts hidden in the tray' : 'Only in the packaged 7Bind.exe'
+    $('updInfo').textContent = 'v' + s.version + ({ up_to_date: ' · up to date', source: ' · running from source', error: ' · check failed' }[u.state] || '') + ' · from GitHub, checked with SHA-256'
+
+    const cl = s.cloud || {}
+    $('cloudState').textContent = !s.linked ? 'Only on this PC (not linked)' : !s.prefs.cloud ? 'Only on this PC' : cl.pending ? cl.pending + ' waiting to upload' : cl.state === 'ok' ? 'All on 7hills.space' : ''
+    show('cloudNote', s.linked && s.prefs.cloud && (cl.state === 'unavailable' || cl.state === 'error'))
+    $('cloudNote').textContent = cl.error || ''
+
+    $('recent').innerHTML = s.backups.slice(0, 8).map(b =>
+      '<tr><td>' + label(b) + '</td><td>' + esc(b.channel) + '</td><td><b>' + esc(b.game_version || '—') + '</b></td><td class="mute">' + when(b.created_at) + '</td><td>' + whatCell(b) + '</td>' +
+      '<td class="r" style="white-space:nowrap"><button class="link" onclick="sheet(\'' + b.id + '\')">Sheet</button> &nbsp; <button class="link" onclick="restoreFrom(\'' + b.id + '\')">Restore</button></td></tr>').join('')
+      || '<tr><td colspan="6" class="empty">No backups yet. They start when the game closes, or press Back up now.</td></tr>'
+    $('events').innerHTML = (s.events || []).map(e => '<div class="row" style="gap:16px;padding:2px 0"><span class="dim" style="width:110px">' + esc(e.at) + '</span><span>' + esc(e.text) + '</span></div>').join('') || '<span class="dim">Nothing yet.</span>'
+
+    // settings
+    $('acct').innerHTML = s.linked
+      ? '<div class="srow"><div class="grow"><div class="t">' + esc(name || 'Linked') + '</div><div class="s">' + (s.token_source === '7hills-link' ? 'Using the 7Hills Link sign-in on this PC' : 'Linked to 7hills.space') + '</div></div><button class="btn small" onclick="call(\'unlink\')">Sign out</button></div>'
+      : s.link ? '<div style="padding:10px 0"><div class="code">' + esc(s.link.code) + '</div><p class="mute small">Approve this code on 7hills.space… <button class="link" onclick="api(\'open_link_page\')">Open the page again</button></p></div>'
+      : '<div class="srow"><div class="grow"><div class="t">Not linked</div><div class="s">Link to send backups to 7hills.space. Your browser opens; sign in and press Connect this PC.</div></div><button class="btn small gold" onclick="call(\'start_link\')">Link this PC</button></div>'
+    if (s.link_error) $('acct').innerHTML += '<div class="red small">' + esc(s.link_error) + '</div>'
+    const by = {}; s.installs.forEach(i => { by[i.channel] = i })
+    $('chanRows').innerHTML = s.channels.filter(c => c.installed || ['LIVE', 'PTU'].includes(c.channel)).map(c => {
+      const i = by[c.channel], q = '\'' + esc(c.channel) + '\''
+      return '<div class="srow"><div class="grow" style="min-width:0"><div class="t">' + esc(c.channel) + (i ? ' <span class="pill ' + (i.source === 'chosen' ? 'gold' : 'ok') + '">' + (i.source === 'chosen' ? 'chosen' : 'found') + '</span>' : ' <span class="pill red">not found</span>') + '</div>' +
+        '<div class="s mono" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(i ? i.folder : '—') + '</div></div>' +
+        '<button class="btn small" onclick="browse(' + q + ')">Browse</button>' + (i && i.source === 'chosen' ? '<button class="btn small" onclick="call(\'reset_game_path\',' + q + ')">Reset</button>' : '') + '</div>'
+    }).join('')
+    $('pathErr').textContent = s.path_error || ''
+    if (view === 'restore' && !rs.plan) renderPick(true)
+  }
+  async function browse(ch) { await call('browse_game', ch) }
+
+  // ---------------------------------------------------------------- backups
+  function openNameBox() { $('nbName').value = ''; show('nameBox', true); setTimeout(() => $('nbName').focus(), 50) }
+  async function backupNow() {
+    hide('nameBox')
+    const r = await api('backup_now', $('nbName').value)
+    if (!r || r.error) return toast((r && r.error) || 'Backup failed', true)
+    render(r.status)
+    const saved = r.results.filter(x => x.result === 'saved').map(x => x.channel)
+    const same = r.results.filter(x => x.result === 'unchanged').map(x => x.channel)
+    toast(saved.length ? 'Backed up ' + saved.join(', ') + (same.length ? '. No changes in ' + same.join(', ') + '.' : '.') : 'No changes since the last backup.')
+  }
+  async function sheet(id) {
+    const r = id ? await api('export_sheet', id) : await api('export_sheet', null, 'LIVE')
+    if (r && r.error) return toast(r.error, true)
+    if (r) toast('Bindings sheet opened in your browser. Print → Save as PDF for a PDF. CSV saved next to it.')
+  }
+
+  // ---------------------------------------------------------------- copy
+  let cp = { plan: null }
+  function copyTo(ch) { go('copy'); $('cpFrom').value = 'LIVE'; $('cpTo').value = ch; planCopy() }
+  function initCopy() {
+    const inst = installed()
+    const from = $('cpFrom').value || 'LIVE', to = $('cpTo').value
+    $('cpFrom').innerHTML = inst.map(c => '<option value="' + c.channel + '">' + c.channel + (c.game && c.game.version ? ' — ' + c.game.version : '') + '</option>').join('')
+    $('cpTo').innerHTML = inst.filter(c => c.channel !== 'LIVE').map(c => '<option value="' + c.channel + '">' + c.channel + (c.latest && c.latest.summary && c.latest.summary.bindings < 5 ? ' — mostly default' : '') + '</option>').join('')
+    if (inst.some(c => c.channel === from)) $('cpFrom').value = from
+    if (to && inst.some(c => c.channel === to)) $('cpTo').value = to
+    if (!$('cpGroups').querySelector('label')) { groupBoxes($('cpGroups'), ['bindings', 'settings', 'profiles']); $('cpGroups').onchange = planCopy }
+    planCopy()
+  }
+  function check(ok, text, warn) { return '<div class="row" style="font-size:13px"><svg class="i" style="color:' + (ok ? 'var(--ok)' : warn ? 'var(--gold)' : 'var(--red)') + '"><use href="#' + (ok ? 'check' : 'warn') + '"/></svg><span>' + text + '</span></div>' }
+  async function planCopy() {
+    const from = $('cpFrom').value, to = $('cpTo').value
+    $('cpGo').disabled = true; cp.plan = null
+    if (!from || !to) { $('cpChecks').innerHTML = check(false, 'Install a second channel (PTU, EPTU…) to copy into.'); return }
+    if (from === to) { $('cpChecks').innerHTML = check(false, 'Pick two different channels.'); return }
+    const p = await api('plan_copy', from, to, groupsOf($('cpGroups')))
+    if (!p) return
+    if (p.error) { $('cpChecks').innerHTML = check(false, esc(p.error)); return }
+    cp.plan = p
+    const moved = p.devices.filter(d => d.status === 'moved').length, miss = p.devices.filter(d => d.status === 'missing')
+    $('cpChecks').innerHTML = check(!p.game_running, p.game_running ? 'Close Star Citizen ' + esc(to) + ' first.' : 'Star Citizen ' + esc(to) + ' is closed') +
+      (p.devices_known ? check(!miss.length, miss.length ? miss.length + ' device(s) are not on this PC; their ' + p.skipped_bindings + ' bindings are skipped' : moved ? moved + ' device(s) get the right slot number in ' + esc(to) : 'All ' + p.devices.length + ' devices sit in the same slot in ' + esc(from) + ' and ' + esc(to), !!miss.length)
+        : check(false, 'No device list yet on this PC. Slot numbers are kept as they are.', true)) +
+      check(!p.target_custom_bindings, p.target_custom_bindings ? 'Replaces ' + esc(to) + "'s " + p.target_custom_bindings + ' custom binding(s)' : esc(to) + ' has no custom bindings yet', true)
+    $('cpGo').textContent = 'Copy to ' + to
+    $('cpGo').disabled = p.game_running
+  }
+  async function runCopy() {
+    if (!cp.plan) return
+    $('cpGo').disabled = true
+    const r = await api('run_plan', cp.plan.id)
+    if (!r || r.error) { toast((r && r.error) || 'Copy failed', true); planCopy(); return }
+    render(r.status); toast('Copied into ' + cp.plan.target + '. Start the game to use it.'); go('backups')
+  }
+
+  // ---------------------------------------------------------------- restore
+  let rs = { id: null, plan: null, cloud: [] }
+  function restoreFrom(id) { go('restore'); pickBackup(id) }
+  function initRestore() {
+    const chs = [...new Set((S ? S.backups : []).map(b => b.channel))]
+    const cur = $('rsFilter').value
+    $('rsFilter').innerHTML = '<option value="">All channels</option>' + chs.map(c => '<option>' + esc(c) + '</option>').join('')
+    $('rsFilter').value = cur
+    $('rsCloudBtn').disabled = !(S && S.linked)
+    if (!rs.plan) rsStep(1)
+    renderPick()
+  }
+  function rsStep(n) { ['st1', 'st2', 'st3'].forEach((id, i) => $(id).classList.toggle('on', i === n - 1)); show('rsPick', n === 1); show('rsMatch', n >= 2) }
+  function renderPick(quiet) {
+    if (quiet && document.activeElement && document.activeElement.id === 'rsFilter') return
+    const f = $('rsFilter').value
+    const local = (S ? S.backups : []).filter(b => !f || b.channel === f)
+    const cloud = rs.cloud.filter(b => !b.local && (!f || b.channel === f))
+    const row = (b, where, act) => '<tr class="pick" onclick="' + act + '"><td>' + label(b) + '</td><td>' + esc(b.channel) + '</td><td><b>' + esc(b.game_version || '—') + '</b> <span class="mono dim">' + esc(b.game_build || '') + '</span></td><td class="mute">' + when(b.created_at) + '</td><td>' + whatCell(b) + '</td><td class="dim small">' + where + '</td></tr>'
+    $('rsList').innerHTML = local.map(b => row(b, b.cloud ? 'This PC · 7hills.space' : 'This PC', "pickBackup('" + b.id + "')")).join('') +
+      cloud.map(b => row(Object.assign({ what: b.what || '' }, b), '7hills.space · ' + esc(b.pc || ''), "pickCloud('" + b.id + "')")).join('') ||
+      '<tr><td colspan="6" class="empty">No backups yet.</td></tr>'
+  }
+  async function loadCloud() {
+    const r = await api('cloud_list', null)
+    if (!r || r.error) return toast((r && r.error) || '7hills.space did not answer', true)
+    rs.cloud = r.backups || []
+    if (!rs.cloud.length) toast('No backups on 7hills.space yet (or the site does not take them yet).')
+    renderPick()
+  }
+  async function pickCloud(cid) {
+    const r = await api('fetch_cloud', cid)
+    if (!r || r.error) return toast((r && r.error) || 'Download failed', true)
+    await call('status'); pickBackup(r.backup.id)
+  }
+  function pickBackup(id) {
+    rs.id = id
+    const b = S.backups.find(x => x.id === id)
+    if (!b) return toast('Backup not found', true)
+    $('rsSrc').innerHTML = label(b) + ' · ' + esc(b.channel) + ' · ' + when(b.created_at)
+    $('rsSrcSub').textContent = 'Saved on ' + (b.pc || 'a PC') + (b.game_build ? ' · build ' + b.game_build : '')
+    const inst = installed()
+    $('rsTo').innerHTML = inst.map(c => '<option value="' + c.channel + '">' + c.channel + '</option>').join('')
+    $('rsTo').value = inst.some(c => c.channel === b.channel) ? b.channel : (inst[0] || {}).channel
+    if (!$('rsGroups').querySelector('label')) { groupBoxes($('rsGroups'), ['bindings', 'settings', 'profiles']); $('rsGroups').onchange = planRestore }
+    rsStep(2); planRestore()
+  }
+  function rsBack() { rs.plan = null; rsStep(1); renderPick() }
+  async function planRestore() {
+    $('rsGo').disabled = true
+    const p = await api('plan_restore', rs.id, $('rsTo').value, groupsOf($('rsGroups')))
+    if (!p) return
+    if (p.error) { rs.plan = null; $('rsDevices').innerHTML = '<tr><td colspan="4" class="red">' + esc(p.error) + '</td></tr>'; return }
+    rs.plan = p; renderPlan()
+  }
+  function renderPlan() {
+    const p = rs.plan
+    const moved = p.devices.some(d => d.status === 'moved' || d.status === 'missing')
+    $('rsDevNote').innerHTML = !p.devices_known
+      ? '<div class="notice amber">No device list on this PC yet. Start Star Citizen once to the main menu and close it, then come back, so 7Bind can put each binding on the right stick. Until then slot numbers are kept as they are.</div>'
+      : moved ? '<div class="notice amber">Windows gave your devices <b>new slot numbers</b> here. 7Bind moves each binding to the device it belonged to, so nothing ends up on the wrong stick.</div>' : ''
+    const opts = d => '<select onchange="override(' + d.from + ',this.value)" style="height:32px"><option value="skip"' + (d.to === null ? ' selected' : '') + '>Skip ' + d.bindings + ' binding(s)</option>' +
+      p.target_devices.map(t => '<option value="' + t.instance + '"' + (d.to === t.instance ? ' selected' : '') + '>js' + t.instance + ' · ' + esc(t.name) + '</option>').join('') + '</select>'
+    $('rsDevices').innerHTML = p.devices.map(d => {
+      const res = d.status === 'same' ? '<span class="ok">Same slot · ' + d.bindings + ' bindings' + (d.curves ? ', ' + d.curves + ' curves' : '') + '</span>'
+        : d.status === 'moved' ? '<span class="gold">Moved · ' + d.bindings + ' bindings' + (d.curves ? ', ' + d.curves + ' curves' : '') + '</span>'
+        : d.status === 'kept' ? '<span class="dim">Kept as js' + d.from + '</span>' : ''
+      return '<tr><td' + (d.status === 'missing' ? ' class="dim"' : '') + '>' + esc(d.name) + '</td><td class="mono">js' + d.from + '</td><td class="mono ' + (d.status === 'moved' ? 'gold' : d.status === 'missing' ? 'red' : '') + '">' + (d.to === null ? 'Not found' : 'js' + d.to) + '</td><td>' + (d.status === 'missing' || (p.devices_known && d.status === 'moved') ? (res ? res + ' ' : '') + (d.status === 'missing' ? opts(d) : '') : res) + '</td></tr>'
+    }).join('') || '<tr><td colspan="4" class="dim">No joysticks in this backup.</td></tr>'
+    $('rsFoot').textContent = p.game_running ? 'Close Star Citizen ' + p.target + ' first.' : 'The current ' + p.target + ' setup is backed up first, so this can be undone. user.cfg is merged, not replaced.'
+    $('rsGo').textContent = 'Restore into ' + p.target
+    $('rsGo').disabled = p.game_running
+  }
+  async function override(from, to) { const p = await api('set_override', rs.plan.id, from, to); if (p && !p.error) { rs.plan = p; renderPlan() } }
+  function openConfirm() {
+    const p = rs.plan; if (!p) return
+    const live = p.target_is_live, g = p.groups
+    $('cfT').textContent = 'Replace your ' + p.target + ' settings?'
+    $('cfD').innerHTML = esc(p.target) + ' gets the setup from <b>' + esc(p.source) + '</b>.'
+    const moved = p.devices.filter(d => d.status === 'moved').length
+    $('cfSum').innerHTML = [['Bindings and curves', g.includes('bindings') ? 'replaced' : 'kept'], ['Game settings', g.includes('settings') ? 'replaced' : 'kept'],
+      ['Saved control profiles', g.includes('profiles') ? 'added' : 'kept'], ['Devices moved to new slots', moved], ['Bindings skipped (device not here)', p.skipped_bindings],
+      ['user.cfg', g.includes('user_cfg') ? 'merged' : 'kept']].map(([k, v]) => '<div class="kv"><span class="dim">' + k + '</span><span>' + v + '</span></div>').join('')
+    show('cfLive', live)
+    $('cfSafe').innerHTML = 'Your current ' + esc(p.target) + ' setup is backed up first as <b>Before restore</b>' + (S.linked && S.prefs.cloud ? ', on 7hills.space too' : '') + '. Star Citizen must be closed.'
+    $('cfWord').value = ''; $('cfErr').textContent = ''; $('cfGo').textContent = 'Restore into ' + p.target; cfCheck()
+    show('confirmBox', true); setTimeout(() => $('cfWord').focus(), 50)
+  }
+  function cfCheck() { const ok = $('cfWord').value === 'RESTORE'; $('cfGo').disabled = !ok; $('cfWord').style.borderColor = ok ? '#dc2626' : '#333' }
+  async function runRestore() {
+    $('cfGo').disabled = true
+    const r = await api('run_plan', rs.plan.id, $('cfWord').value)
+    if (!r || r.error) { $('cfErr').textContent = (r && r.error) || 'Restore failed'; cfCheck(); return }
+    hide('confirmBox'); const t = rs.plan.target; rs.plan = null; render(r.status)
+    toast('Restored into ' + t + '. Start the game to use it.'); go('backups')
+  }
+
+  async function tick() { try { const s = await api('status'); if (s) render(s) } catch (e) {} }
+  window.addEventListener('pywebviewready', () => { tick(); setInterval(tick, 1500) })
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { hide('nameBox'); hide('confirmBox') } if (e.key === 'Enter' && !$('nameBox').classList.contains('hidden')) backupNow() })
+</script>
+</body>
+</html>

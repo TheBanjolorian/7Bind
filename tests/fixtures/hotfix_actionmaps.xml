@@ -1,0 +1,279 @@
+<ActionMaps>
+ <ActionProfiles version="1" optionsVersion="2" rebindVersion="2" profileName="default">
+  <deviceoptions name="Mouse">
+   <option input="@pause_OptionsMouseAcceleration" acceleration="0.0049999999"/>
+  </deviceoptions>
+  <options type="keyboard" instance="1" Product="Tangentbord  {6F1D2B61-D5A0-11CF-BFC7-444553540000}"/>
+  <options type="gamepad" instance="1" Product="Controller (Gamepad)">
+   <flight_view exponent="1"/>
+  </options>
+  <options type="joystick" instance="1" Product="VPC Panel #1  {02593344-0000-0000-0000-504944564944}"/>
+  <options type="joystick" instance="2" Product="LEFT VPC Stick WarBRD  {80CC3344-0000-0000-0000-504944564944}">
+   <flight_move_strafe_lateral>
+    <nonlinearity_curve>
+     <point in="0" out="0"/>
+     <point in="0.16111548" out="0.078153834"/>
+     <point in="0.28558245" out="0.14721461"/>
+     <point in="0.38239011" out="0.25080577"/>
+     <point in="0.42733651" out="0.39755991"/>
+     <point in="0.5" out="0.5"/>
+     <point in="0.60000002" out="0.60000002"/>
+     <point in="0.69999999" out="0.69999999"/>
+     <point in="0.80000001" out="0.80000001"/>
+     <point in="0.90000004" out="0.90000004"/>
+     <point in="1" out="1"/>
+    </nonlinearity_curve>
+   </flight_move_strafe_lateral>
+   <flight_strafe_longitudinal invert="1">
+    <nonlinearity_curve>
+     <point in="0" out="0"/>
+     <point in="0.12654132" out="0.072974272"/>
+     <point in="0.30459824" out="0.15584721"/>
+     <point in="0.35127336" out="0.24562621"/>
+     <point in="0.40000001" out="0.40000001"/>
+     <point in="0.5" out="0.5"/>
+     <point in="0.60000002" out="0.60000002"/>
+     <point in="0.69999999" out="0.69999999"/>
+     <point in="0.80000001" out="0.80000001"/>
+     <point in="0.90000004" out="0.90000004"/>
+     <point in="1" out="1"/>
+    </nonlinearity_curve>
+   </flight_strafe_longitudinal>
+  </options>
+  <options type="joystick" instance="3" Product="vJoy Device  {BEAD1234-0000-0000-0000-504944564944}"/>
+  <options type="joystick" instance="4" Product="RIGHT VPC Stick WarBRD  {40CC3344-0000-0000-0000-504944564944}"/>
+  <options type="joystick" instance="5" Product="VPC MongoosT-50CM3  {01943344-0000-0000-0000-504944564944}"/>
+  <options type="joystick" instance="6"/>
+  <options type="joystick" instance="7"/>
+  <options type="joystick" instance="8"/>
+  <modifiers />
+  <actionmap name="seat_general">
+   <action name="v_operator_mode_cycle_forward">
+    <rebind input="js4_button6"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_general">
+   <action name="v_flightready">
+    <rebind input="js1_button7"/>
+   </action>
+   <action name="v_toggle_all_doorlocks">
+    <rebind input="js1_button11"/>
+   </action>
+   <action name="v_toggle_all_doors">
+    <rebind input="js1_button12"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_movement">
+   <action name="v_accel_range_abs">
+    <rebind input="js1_slider2"/>
+   </action>
+   <action name="v_afterburner">
+    <rebind input="js4_button31"/>
+   </action>
+   <action name="v_atc_request">
+    <rebind input="js1_button10"/>
+   </action>
+   <action name="v_autoland">
+    <rebind input="js1_button11"/>
+   </action>
+   <action name="v_ifcs_speed_limiter_abs">
+    <rebind input="js1_slider1"/>
+   </action>
+   <action name="v_ifcs_speed_limiter_toggle">
+    <rebind input="js1_button2"/>
+   </action>
+   <action name="v_ifcs_toggle_esp">
+    <rebind input="js1_button6"/>
+   </action>
+   <action name="v_ifcs_toggle_gforce_safety">
+    <rebind input="js1_button5"/>
+   </action>
+   <action name="v_ifcs_vector_decoupling_toggle">
+    <rebind input="js2_button10"/>
+   </action>
+   <action name="v_master_mode_cycle">
+    <rebind input="js2_button6"/>
+   </action>
+   <action name="v_pitch">
+    <rebind input="js4_y"/>
+   </action>
+   <action name="v_roll">
+    <rebind input="js4_z"/>
+   </action>
+   <action name="v_space_brake">
+    <rebind input="js2_button12"/>
+   </action>
+   <action name="v_strafe_down">
+    <rebind input="kb1_ "/>
+    <rebind input="js1_ "/>
+   </action>
+   <action name="v_strafe_lateral">
+    <rebind input="js2_x"/>
+   </action>
+   <action name="v_strafe_left">
+    <rebind input="js1_ "/>
+   </action>
+   <action name="v_strafe_longitudinal">
+    <rebind input="js2_y"/>
+   </action>
+   <action name="v_strafe_right">
+    <rebind input="js1_ "/>
+   </action>
+   <action name="v_strafe_up">
+    <rebind input="kb1_ "/>
+    <rebind input="js1_ "/>
+   </action>
+   <action name="v_strafe_vertical">
+    <rebind input="js2_z"/>
+   </action>
+   <action name="v_toggle_landing_system">
+    <rebind input="js2_button17"/>
+   </action>
+   <action name="v_transform_cycle">
+    <rebind input="js2_button20"/>
+   </action>
+   <action name="v_vtol_toggle">
+    <rebind input="js2_button19"/>
+   </action>
+   <action name="v_yaw">
+    <rebind input="js4_x"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_quantum">
+   <action name="v_toggle_qdrive_engagement">
+    <rebind input="js2_button6"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_targeting">
+   <action name="v_target_unlock">
+    <rebind input="js4_button7"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_targeting_advanced">
+   <action name="v_target_cycle_all_fwd">
+    <rebind input="js4_button11"/>
+   </action>
+   <action name="v_target_cycle_attacker_fwd">
+    <rebind input="js4_button9"/>
+   </action>
+   <action name="v_target_cycle_attacker_reset">
+    <rebind input="js4_button10"/>
+   </action>
+   <action name="v_target_cycle_subitem_back">
+    <rebind input="js4_button23"/>
+   </action>
+   <action name="v_target_cycle_subitem_fwd">
+    <rebind input="js4_button24"/>
+   </action>
+   <action name="v_target_cycle_subitem_reset">
+    <rebind input="js4_button21"/>
+   </action>
+   <action name="v_target_under_reticle">
+    <rebind input="js4_ "/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_radar">
+   <action name="v_invoke_ping">
+    <rebind input="js2_button25"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_scanning">
+   <action name="v_scanning_trigger_scan">
+    <rebind input="js4_button4"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_weapons">
+   <action name="v_weapon_pip_fade_on">
+    <rebind input="js4_ "/>
+   </action>
+   <action name="v_weapon_pip_toggle_lead_lag">
+    <rebind input="js1_button32"/>
+   </action>
+   <action name="v_weapon_preset_attack">
+    <rebind input="js1_ "/>
+   </action>
+   <action name="v_weapon_preset_fire_guns0">
+    <rebind input="js4_button4"/>
+   </action>
+   <action name="v_weapon_preset_fire_guns1">
+    <rebind input="js2_button4"/>
+   </action>
+   <action name="v_weapon_preset_next">
+    <rebind input="js1_ "/>
+   </action>
+   <action name="v_weapon_preset_prev">
+    <rebind input="js1_ "/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_missiles">
+   <action name="v_weapon_cycle_missile_back">
+    <rebind input="js4_button17"/>
+   </action>
+   <action name="v_weapon_cycle_missile_fwd">
+    <rebind input="js4_button15"/>
+   </action>
+   <action name="v_weapon_decrease_max_missiles">
+    <rebind input="js4_button16"/>
+   </action>
+   <action name="v_weapon_increase_max_missiles">
+    <rebind input="js4_button14"/>
+   </action>
+   <action name="v_weapon_reset_max_missiles">
+    <rebind input="js4_button13"/>
+   </action>
+   <action name="v_weapon_toggle_launch_missile">
+    <rebind input="js4_button4"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_defensive">
+   <action name="v_weapon_countermeasure_decoy_burst_decrease">
+    <rebind input="js1_button21"/>
+   </action>
+   <action name="v_weapon_countermeasure_decoy_burst_increase">
+    <rebind input="js1_button22"/>
+   </action>
+   <action name="v_weapon_countermeasure_decoy_launch">
+    <rebind input="js4_button27"/>
+   </action>
+   <action name="v_weapon_countermeasure_decoy_launch_panic">
+    <rebind input="js4_button25"/>
+   </action>
+   <action name="v_weapon_countermeasure_noise_launch">
+    <rebind input="js4_button29"/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_power">
+   <action name="v_engineering_assignment_engine_decrease">
+    <rebind input="js5_button72"/>
+   </action>
+   <action name="v_engineering_assignment_engine_increase">
+    <rebind input="js5_button69"/>
+   </action>
+   <action name="v_engineering_assignment_shields_decrease">
+    <rebind input="js5_button73"/>
+   </action>
+   <action name="v_engineering_assignment_shields_increase">
+    <rebind input="js5_button70"/>
+   </action>
+   <action name="v_engineering_assignment_weapons_decrease">
+    <rebind input="js5_button71"/>
+   </action>
+   <action name="v_engineering_assignment_weapons_increase">
+    <rebind input="js5_button68"/>
+   </action>
+  </actionmap>
+  <actionmap name="lights_controller">
+   <action name="v_lights">
+    <rebind input="js1_button8"/>
+   </action>
+  </actionmap>
+  <actionmap name="vehicle_general">
+   <action name="v_view_pitch">
+    <rebind input="js1_ "/>
+   </action>
+   <action name="v_view_yaw">
+    <rebind input="js1_ "/>
+   </action>
+  </actionmap>
+ </ActionProfiles>
+</ActionMaps>
