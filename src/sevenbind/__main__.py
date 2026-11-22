@@ -31,9 +31,14 @@ def main(argv: list[str] | None = None) -> int:
         pids = [int(p) for p in arg("--wait").split(",") if p.strip().isdigit()]
         return updater.install_to(Path(arg("--install-to")), pids, arg("--from-version", "?"))
 
+    from . import single
+
     if "--backup" in argv:
         import json
         from .core import Core
+        if not single.acquire():
+            print("7Bind is running; it backs up by itself. Use Back up now in its window.")
+            return 1
         core = Core()
         core.scan()
         for r in core.backup_all():
@@ -45,6 +50,9 @@ def main(argv: list[str] | None = None) -> int:
         import threading
         import time
         from .core import Core
+        if not single.acquire():
+            print("7Bind is already running.")
+            return 1
         core = Core()
         threading.Thread(target=core.run, daemon=True).start()
         try:
@@ -62,6 +70,12 @@ def main(argv: list[str] | None = None) -> int:
         updated_from = argv[i + 1] if i + 1 < len(argv) else "?"
         from . import updater
         updater.mark_ready()
+
+    # One 7Bind at a time: a second start shows the running window and exits.
+    # After an update the old process may still be closing, so wait a little.
+    if not single.acquire(wait=20 if updated_from else 0):
+        single.tell_running("show")
+        return 0
 
     from .app import run_window
     return run_window(updated_from, autostart="--autostart" in argv)

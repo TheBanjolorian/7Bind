@@ -108,6 +108,7 @@
     <span class="brand">7BIND</span><span class="dim small" id="ver"></span>
     <span class="grow"></span>
     <span class="row small" id="who"><span class="dot" id="whoDot"></span><span id="whoText">Not linked</span></span>
+    <button class="btn small" style="margin-left:12px" onclick="quitApp()" title="Stop 7Bind completely">Quit 7Bind</button>
   </header>
   <div class="body">
     <nav aria-label="Sections">
@@ -213,8 +214,9 @@
             </div>
             <div class="card pad"><h2>App</h2>
               <div class="srow"><div class="grow"><div class="t">Start with Windows</div><div class="s" id="startHint">Starts hidden in the tray</div></div><button class="switch" id="swStart" onclick="toggle('start_with_windows')" aria-label="Start with Windows"><span></span></button></div>
-              <div class="srow"><div class="grow"><div class="t">Close to tray</div><div class="s">Keeps backing up when the window is closed</div></div><button class="switch" id="swTray" onclick="toggle('tray')" aria-label="Close to tray"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Close to tray</div><div class="s">Closing the window keeps 7Bind running in the tray. Use Quit 7Bind to stop it.</div></div><button class="switch" id="swTray" onclick="toggle('tray')" aria-label="Close to tray"><span></span></button></div>
               <div class="srow"><div class="grow"><div class="t">Update automatically</div><div class="s" id="updInfo"></div></div><button class="switch" id="swUpd" onclick="setAutoUpdate()" aria-label="Update automatically"><span></span></button></div>
+              <div class="srow"><div class="grow"><div class="t">Stop 7Bind</div><div class="s">Closes the window and the tray icon. No backups until you start it again.</div></div><button class="btn small" onclick="quitApp()">Quit 7Bind</button></div>
               <div class="srow"><div class="grow"><div class="t">Release notes</div><div class="s">github.com/TheBanjolorian/7Bind</div></div><button class="btn small" onclick="api('open_web','github')">Open ↗</button> <button class="btn small" id="checkBtn" onclick="checkNow()">Check now</button></div>
             </div>
           </div>
@@ -513,6 +515,7 @@
     toast('Restored into ' + t + '. Start the game to use it.'); go('backups')
   }
 
+  function quitApp() { if (confirm('Quit 7Bind? Backups stop until you start it again.')) api('quit') }
   async function tick() { try { const s = await api('status'); if (s) render(s) } catch (e) {} }
   window.addEventListener('pywebviewready', () => { tick(); setInterval(tick, 1500) })
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { hide('nameBox'); hide('confirmBox') } if (e.key === 'Enter' && !$('nameBox').classList.contains('hidden')) backupNow() })

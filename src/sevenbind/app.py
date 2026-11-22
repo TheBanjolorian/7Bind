@@ -37,6 +37,7 @@ class JsApi:
         self._core = core
         self._autostart = autostart
         self._window = None
+        self._quit = None
         self._path_error: str | None = None
 
     def status(self):
@@ -155,6 +156,11 @@ class JsApi:
         if path is not None:
             webbrowser.open(SITE + path)
 
+    def quit(self):
+        """Stop 7Bind completely (window, tray and backups)."""
+        if self._quit:
+            threading.Thread(target=self._quit, name="quit", daemon=True).start()
+
     def open_folder(self, which="backups"):
         folder = sub("backups" if which == "backups" else "exports")
         if os.name == "nt":
@@ -198,6 +204,10 @@ def run_window(updated_from: str | None = None, autostart: bool = False) -> int:
         threading.Thread(target=core.backup_all, name="backup-now", daemon=True).start()
 
     tray = Tray(show_window, backup_now, quit_app)
+    js_api._quit = quit_app
+
+    from . import single
+    single.listen(show_window, quit_app)
 
     def to_tray() -> bool:
         return tray.available and core.prefs.get("tray") and not quitting.is_set()
