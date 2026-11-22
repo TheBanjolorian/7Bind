@@ -12,7 +12,7 @@ from .paths import resource, sub
 from .prefs import DEFAULTS, apply_startup
 
 SITE = "https://www.7hills.space"
-WEB_PAGES = {"backups": "/settings/game-backups", "link": "/link", "site": "",
+WEB_PAGES = {"backups": "/profile?tab=game", "link": "/link", "site": "",
              "github": None}
 GITHUB = "https://github.com/TheBanjolorian/7Bind"
 
