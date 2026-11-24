@@ -22,6 +22,22 @@ MEMBER_EVERY = 300.0     # refresh who we are linked as
 UPDATE_EVERY = 6 * 3600
 PLAN_TTL = 1800
 
+UNLINK_UNCONFIRMED = ("7Net did not confirm the unlink, so 7Bind is only signed out here. "
+                      "Unlink this PC on 7hills.space too: Profile \u2192 PCs.")
+
+
+def lost_key_message(e: "api.ApiError | None") -> str:
+    """Why 7Net refused the key, for the window."""
+    code = getattr(e, "code", None)
+    reason = getattr(e, "reason", None)
+    if code == "expired":
+        return "This PC was not used for 90 days, so its link expired. Link it again."
+    if code == "unlinked" and reason == "admin":
+        return "An admin unlinked this PC from 7Net. Link it again if you should have access."
+    if code == "unlinked" and reason == "limit":
+        return "This PC was unlinked because another PC was linked and you can have 5. Link it again."
+    return "This PC was unlinked on 7Net. Link it again."
+
 
 class Updates:
     """Looks for new releases, downloads them, installs between play sessions."""
@@ -203,7 +219,7 @@ class Core:
                 self.cloud_state, self.cloud_error = "ok", None
             except api.ApiError as e:
                 if e.status == 401:
-                    self._lost_key()
+                    self._lost_key(e)
                 elif e.status in (404, 405, 501):
                     self.cloud_state, self.cloud_error = "unavailable", "7hills.space does not take backups yet. They are kept on this PC and sent later."
                 else:
@@ -267,18 +283,29 @@ class Core:
             self.link, self.link_error = None, "The code expired. Start again."
 
     def unlink(self) -> None:
-        """Sign 7Bind out. 7Hills Link's own key is left alone and not picked up again."""
+        """Sign 7Bind out. 7Bind's own key is unlinked on 7Net first. 7Hills Link's key,
+        when 7Bind borrowed it, is left alone (unlink that PC in 7Hills Link) and is
+        not picked up again."""
+        error = None
+        if self.token and self.token_source == "7bind":
+            try:
+                api.unlink_device(self.token)
+            except api.ApiError as e:
+                # 401: 7Net already refuses this key, so there is nothing left to unlink there.
+                if e.status != 401:
+                    error = UNLINK_UNCONFIRMED
         api.clear_token()
         api.set_signed_out(True)
         with self.lock:
             self.token, self.token_source, self.member = None, "", None
         self.cloud_state = "off"
+        self.link_error = error
 
-    def _lost_key(self) -> None:
+    def _lost_key(self, e: api.ApiError | None = None) -> None:
         if self.token_source == "7bind":
             api.clear_token()
         self.token, self.token_source, self.member = None, "", None
-        self.link_error = "This PC was unlinked on 7Net. Link it again."
+        self.link_error = lost_key_message(e)
 
     def _refresh_member(self, force: bool = False) -> None:
         if not self.token or (not force and time.time() - self._last_member < MEMBER_EVERY):
@@ -288,7 +315,7 @@ class Core:
             self.member = api.whoami(self.token).get("member")
         except api.ApiError as e:
             if e.status == 401:
-                self._lost_key()
+                self._lost_key(e)
 
     # ---------------------------------------------------------------- copy / restore
 

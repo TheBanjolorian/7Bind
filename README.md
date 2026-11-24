@@ -38,7 +38,7 @@ The game version comes from `BuildID` in `Profiles\defaultActions.xml` (or `buil
 
 ## 7hills.space
 
-Link the PC under Settings → Account (the same PC link as 7Hills Link; if 7Hills Link is already linked on this PC, 7Bind uses that sign-in). Backups are then uploaded and you can see, compare, export and share them on 7hills.space. The server side is described in [docs/API.md](docs/API.md). Until the site takes backups, they wait on this PC and upload later.
+Link the PC under Settings → Account (the same PC link as 7Hills Link; if 7Hills Link is already linked on this PC, 7Bind uses that sign-in). Backups are then uploaded and you can see, compare, export and share them on 7hills.space. Signing out unlinks 7Bind's own link on 7Net; a 7Hills Link sign-in that 7Bind borrowed is left to 7Hills Link. All linked PCs are listed on 7hills.space under Profile → PCs, where you can unlink them. The server side is described in [docs/API.md](docs/API.md). Until the site takes backups, they wait on this PC and upload later.
 
 ## Run from source
 
