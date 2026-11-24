@@ -14,6 +14,7 @@ import os
 import platform
 import urllib.error
 import urllib.request
+import uuid
 
 from . import __version__
 from .paths import data_dir
@@ -25,10 +26,16 @@ LINK_KEYRING_SERVICE = "7HillsLink"   # 7Hills Link's key; read only
 
 
 class ApiError(Exception):
-    def __init__(self, status: int, message: str):
+    """status 0 means 7Net could not be reached. code and reason come from 7Net's
+    answer when a PC key is refused: code 'unlinked' (reason user, admin,
+    replaced, limit or all), 'expired', 'unauthorized' or 'not_member'."""
+
+    def __init__(self, status: int, message: str, code: str | None = None, reason: str | None = None):
         super().__init__(f"{status}: {message}")
         self.status = status
         self.message = message
+        self.code = code
+        self.reason = reason
 
 
 def _request(method: str, path: str, data: bytes | None = None, token: str | None = None,
@@ -46,11 +53,14 @@ def _request(method: str, path: str, data: bytes | None = None, token: str | Non
                 return body
             return json.loads(body or b"{}")
     except urllib.error.HTTPError as e:
+        code = reason = None
         try:
-            msg = json.loads(e.read() or b"{}").get("error", e.reason)
+            j = json.loads(e.read() or b"{}")
+            msg = j.get("error", e.reason)
+            code, reason = j.get("code"), j.get("reason")
         except Exception:
             msg = str(e.reason)
-        raise ApiError(e.code, str(msg)) from None
+        raise ApiError(e.code, str(msg), code if isinstance(code, str) else None, reason if isinstance(reason, str) else None) from None
     except (urllib.error.URLError, TimeoutError, OSError) as e:
         raise ApiError(0, str(e)) from None
 
@@ -66,8 +76,29 @@ def device_name() -> str:
 
 # ------------------------------------------------------------------ linking (existing 7Net PC link)
 
+def install_id() -> str:
+    """A random id for this 7Bind installation, made on first use and kept in the data folder.
+    When it is linked again, 7Net unlinks its old key. Not tied to the hardware."""
+    f = data_dir() / "install.id"
+    try:
+        return str(uuid.UUID(f.read_text().strip()))
+    except (OSError, ValueError):
+        pass
+    new = str(uuid.uuid4())
+    try:
+        f.write_text(new)
+    except OSError:
+        pass
+    return new
+
+
 def start_link() -> dict:
-    return _json("POST", "/api/telemetry/link/start", {"device_name": device_name()})
+    return _json("POST", "/api/telemetry/link/start", {"device_name": device_name(), "install_id": install_id()})
+
+
+def unlink_device(token: str) -> dict:
+    """Asks 7Net to stop accepting this key. Only for 7Bind's own key, never 7Hills Link's."""
+    return _request("POST", "/api/telemetry/device/unlink", b"{}", token, timeout=6)
 
 
 def poll_link(code: str, poll_secret: str) -> dict:

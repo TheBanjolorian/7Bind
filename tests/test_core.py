@@ -56,3 +56,57 @@ def test_watch_backs_up_after_game_closes(home, game, monkeypatch):
     c._watch()
     assert c.store.latest("LIVE") is not None
     assert any("closed" in e["text"] for e in c.events)
+
+
+def _signed_in(game, monkeypatch, source):
+    c = make_core(game, monkeypatch)
+    calls = []
+    monkeypatch.setattr(api, "clear_token", lambda: calls.append("forget own key"))
+    c.token, c.token_source = "7hl_test", source
+    return c, calls
+
+
+def test_sign_out_unlinks_7binds_own_key_on_7net_first(home, game, monkeypatch):
+    c, calls = _signed_in(game, monkeypatch, "7bind")
+    monkeypatch.setattr(api, "unlink_device", lambda token: calls.append("unlink " + token) or {"ok": True})
+    c.unlink()
+    assert calls == ["unlink 7hl_test", "forget own key"]
+    assert c.token is None and c.link_error is None and api.signed_out()
+
+
+def test_sign_out_leaves_a_borrowed_7hills_link_key_alone(home, game, monkeypatch):
+    c, calls = _signed_in(game, monkeypatch, "7hills-link")
+    monkeypatch.setattr(api, "unlink_device", lambda token: calls.append("unlink") or {"ok": True})
+    c.unlink()
+    assert "unlink" not in calls and c.token is None and api.signed_out()
+
+
+def test_sign_out_without_7net_says_so(home, game, monkeypatch):
+    c, calls = _signed_in(game, monkeypatch, "7bind")
+    def down(token):
+        raise api.ApiError(0, "timed out")
+    monkeypatch.setattr(api, "unlink_device", down)
+    c.unlink()
+    assert c.token is None and c.link_error == core_mod.UNLINK_UNCONFIRMED
+
+
+def test_refused_key_says_why(home, game, monkeypatch):
+    c, calls = _signed_in(game, monkeypatch, "7bind")
+    for (code, reason), text in [(("expired", None), "90 days"), (("unlinked", "admin"), "An admin unlinked"),
+                                 (("unlinked", "limit"), "you can have 5"), (("unlinked", "user"), "unlinked on 7Net")]:
+        c.token, c.token_source = "7hl_test", "7bind"
+        def refuse(token, code=code, reason=reason):
+            raise api.ApiError(401, "refused", code, reason)
+        monkeypatch.setattr(api, "whoami", refuse)
+        c._refresh_member(force=True)
+        assert c.token is None and text in c.link_error, (code, reason, c.link_error)
+
+
+def test_link_start_sends_7binds_own_install_id(home, monkeypatch):
+    seen = {}
+    monkeypatch.setattr(api, "_json", lambda method, path, body=None, token=None: seen.update(path=path, body=body) or {})
+    api.start_link()
+    first = seen["body"]["install_id"]
+    api.start_link()
+    assert seen["path"] == "/api/telemetry/link/start" and seen["body"]["install_id"] == first
+    assert (home / "install.id").read_text().strip() == first
